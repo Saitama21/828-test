@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#071019" />
+  <meta name="description" content="Offline CNC Assistant for Siemens 828D: job cards, cutting calculators, tooling, materials and diagnostics." />
+  <title>CNC Assistant · 828D</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./src/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" data-nav="home" aria-label="На главную">
+        <span class="brand-mark" aria-hidden="true">C</span>
+        <span class="brand-copy"><strong>CNC</strong><span>ASSISTANT</span></span>
+      </button>
+      <div class="machine-pill" title="Активный профиль станка">
+        <span class="machine-dot"></span>
+        <span><strong>Tengyue CK52PT-Y</strong><small>Siemens 828D · ShopTurn</small></span>
+      </div>
+      <div class="top-actions">
+        <span class="status-pill" id="networkStatus"><i></i><span>Оффлайн готов</span></span>
+        <button class="icon-btn" id="themeToggle" aria-label="Сменить тему" title="Сменить тему">☾</button>
+      </div>
+    </header>
+
+    <aside class="sidebar" aria-label="Навигация">
+      <nav class="nav-list">
+        <button class="nav-item active" data-nav="home"><span>⌂</span><b>Главная</b></button>
+        <button class="nav-item" data-nav="job"><span>▤</span><b>Деталь</b></button>
+        <button class="nav-item" data-nav="technology"><span>⌁</span><b>Технология</b></button>
+        <button class="nav-item" data-nav="machine"><span>⚙</span><b>Станок</b></button>
+        <button class="nav-item" data-nav="reference"><span>▦</span><b>Справочник</b></button>
+      </nav>
+      <div class="sidebar-foot">
+        <span class="offline-badge">● 100% локально</span>
+        <small>Данные хранятся на этом устройстве</small>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <section class="view active" id="view-home" data-view="home">
+        <div class="hero panel">
+          <div class="hero-copy">
+            <span class="eyebrow">CNC ASSISTANT · v0.1</span>
+            <h1>Работа с деталью<br><em>без лишних окон.</em></h1>
+            <p>Одна деталь → один рабочий поток: данные, технология, расчёты, инструмент и контроль.</p>
+            <div class="hero-actions">
+              <button class="btn primary" data-nav="job">＋ Новая деталь</button>
+              <button class="btn" id="resumeJobBtn">Продолжить текущую</button>
+            </div>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <div class="part-iso"><span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span><span class="axis"></span></div>
+            <div class="visual-tag"><b>Ø40</b><small>контрольный размер</small></div>
+          </div>
+        </div>
+
+        <div class="section-head"><div><span class="eyebrow">БЫСТРЫЙ СТАРТ</span><h2>Что делаем сейчас?</h2></div></div>
+        <div class="action-grid">
+          <button class="action-card" data-nav="job"><span class="action-icon">▤</span><div><strong>Деталь / чертёж</strong><small>Карточка, размеры, заметки</small></div><i>→</i></button>
+          <button class="action-card" data-nav="technology"><span class="action-icon">⌁</span><div><strong>Технология</strong><small>Операции, режимы, инструмент</small></div><i>→</i></button>
+          <button class="action-card" data-open="calculator"><span class="action-icon">∑</span><div><strong>Рассчитать режим</strong><small>Vc, S, F, подача</small></div><i>→</i></button>
+          <button class="action-card" data-open="diagnostics"><span class="action-icon">⌁</span><div><strong>Проблема в работе</strong><small>Писк, вибрация, стружка, размер</small></div><i>→</i></button>
+        </div>
+
+        <div class="home-columns">
+          <section class="panel compact-panel">
+            <div class="panel-title"><div><span class="eyebrow">ТЕКУЩАЯ РАБОТА</span><h3 id="currentJobTitle">Деталь не выбрана</h3></div><button class="text-btn" data-nav="job">Открыть</button></div>
+            <div class="job-progress" id="jobProgress">
+              <div class="progress-track"><span style="width:0%"></span></div>
+              <div class="progress-meta"><span>Создай карточку детали</span><b>0%</b></div>
+            </div>
+          </section>
+          <section class="panel compact-panel machine-summary">
+            <div class="panel-title"><div><span class="eyebrow">АКТИВНЫЙ СТАНОК</span><h3>Tengyue CK52PT-Y</h3></div><button class="text-btn" data-nav="machine">Профиль</button></div>
+            <div class="spec-row"><span>Пруток</span><b>52 мм</b><span>Револьвер</span><b>15 поз.</b><span>Шпиндель</span><b>4000 rpm</b></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-job" data-view="job">
+        <div class="page-head"><div><span class="eyebrow">РАБОЧИЙ КОНТЕКСТ</span><h1>Деталь</h1><p>Все исходные данные задачи в одном месте. Они автоматически используются в технологии и расчётах.</p></div><span class="local-chip">Локальное сохранение</span></div>
+        <div class="content-split">
+          <form class="panel form-panel" id="jobForm">
+            <div class="panel-title"><div><h3>Карточка детали</h3><small>Минимум полей — только то, что реально нужно у станка</small></div></div>
+            <div class="form-grid">
+              <label><span>Название детали</span><input id="jobName" placeholder="Напр. Втулка Ø40" /></label>
+              <label><span>Материал</span><select id="jobMaterial"><option>AISI 304</option><option>Сталь 45</option><option>40Х</option><option>Алюминий 6061</option><option>Полиамид PA6</option><option>PE1000</option></select></label>
+              <label><span>Заготовка Ø, мм</span><input id="stockDiameter" type="number" inputmode="decimal" placeholder="50" /></label>
+              <label><span>Длина, мм</span><input id="stockLength" type="number" inputmode="decimal" placeholder="80" /></label>
+              <label><span>Количество</span><input id="jobQty" type="number" inputmode="numeric" min="1" value="1" /></label>
+              <label><span>Ноль детали</span><select id="jobZero"><option>G54 · торец детали</option><option>G54 · торец кулачков</option><option>G55</option></select></label>
+              <label class="wide"><span>Контрольные размеры</span><input id="controlDims" placeholder="Ø40 +0.02/0; L=27.4; M16×1.5" /></label>
+              <label class="wide"><span>Заметки</span><textarea id="jobNotes" rows="4" placeholder="Особенности установки, базирование, что проверить перед запуском…"></textarea></label>
+            </div>
+            <div class="form-actions"><button class="btn primary" type="submit">Сохранить деталь</button><button class="btn danger-ghost" type="button" id="clearJobBtn">Очистить</button></div>
+          </form>
+          <aside class="panel context-card">
+            <span class="eyebrow">КОНТЕКСТ</span><h3 id="jobContextName">Новая деталь</h3>
+            <div class="context-part"><div class="mini-part"></div></div>
+            <dl id="jobContextList"><div><dt>Материал</dt><dd>—</dd></div><div><dt>Заготовка</dt><dd>—</dd></div><div><dt>Партия</dt><dd>—</dd></div><div><dt>Ноль</dt><dd>—</dd></div></dl>
+            <button class="btn full" data-nav="technology">Перейти к технологии →</button>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-technology" data-view="technology">
+        <div class="page-head"><div><span class="eyebrow">ПРОЦЕСС</span><h1>Технология</h1><p>Не десять отдельных калькуляторов, а последовательность обработки детали.</p></div><button class="btn primary" id="addOperationBtn">＋ Операция</button></div>
+        <div class="process-layout">
+          <section class="panel process-panel">
+            <div class="process-top"><div><span class="eyebrow">МАРШРУТ</span><h3 id="techJobName">Без выбранной детали</h3></div><span class="step-count" id="operationCount">0 операций</span></div>
+            <div class="operations" id="operationsList"></div>
+            <div class="empty-state" id="operationsEmpty"><span>⌁</span><h3>Маршрут пока пуст</h3><p>Добавь первую операцию: торцовка, точение, расточка, сверление, канавка или резьба.</p><button class="btn" id="emptyAddOperation">Добавить операцию</button></div>
+          </section>
+          <aside class="stack">
+            <section class="panel side-tool"><span class="eyebrow">БЫСТРЫЙ РАСЧЁТ</span><h3>Режим резания</h3><p>Расчёт оборотов и подачи без выхода из маршрута.</p><button class="btn full" data-open="calculator">Открыть калькулятор</button></section>
+            <section class="panel side-tool"><span class="eyebrow">ПРОВЕРКА</span><h3>Что-то пищит?</h3><p>Диагностическое дерево по симптомам — полностью офлайн.</p><button class="btn full" data-open="diagnostics">Диагностика</button></section>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-machine" data-view="machine">
+        <div class="page-head"><div><span class="eyebrow">ПРОФИЛЬ</span><h1>Мой станок</h1><p>Один раз задаём возможности станка — дальше расчёты знают его пределы.</p></div></div>
+        <section class="machine-hero panel"><div><div class="machine-art"><div class="lathe-body"><i></i><b></b><em></em></div></div></div><div class="machine-info"><span class="eyebrow">ТОКАРНЫЙ С ПРИВОДНЫМ ИНСТРУМЕНТОМ</span><h2>Tengyue CK52PT-Y</h2><p>Siemens SINUMERIK 828D · ShopTurn · BMT40-ER25</p><div class="spec-grid"><div><small>Макс. Ø обработки</small><b>500 мм</b></div><div><small>Длина обработки</small><b>550 мм</b></div><div><small>Пруток</small><b>52 мм</b></div><div><small>Шпиндель</small><b>4000 rpm</b></div><div><small>Мощность</small><b>11 кВт</b></div><div><small>Револьвер</small><b>15 позиций</b></div></div></div></section>
+        <div class="section-head"><div><span class="eyebrow">ОГРАНИЧЕНИЯ И ОСНАСТКА</span><h2>Что учитывает приложение</h2></div></div>
+        <div class="feature-row"><div class="feature-card"><b>X / Z / Y / C</b><span>Оси станка</span></div><div class="feature-card"><b>A2-6</b><span>Шпиндель</span></div><div class="feature-card"><b>61 мм</b><span>Отверстие шпинделя</span></div><div class="feature-card"><b>8″</b><span>Гидропатрон</span></div></div>
+      </section>
+
+      <section class="view" id="view-reference" data-view="reference">
+        <div class="page-head"><div><span class="eyebrow">БАЗА ЗНАНИЙ</span><h1>Справочник</h1><p>То, что обычно ищешь по десяти вкладкам — локально и структурировано.</p></div><input class="search-input" id="referenceSearch" placeholder="Поиск: AISI 304, M16, CNMG…" /></div>
+        <div class="reference-grid" id="referenceGrid">
+          <article class="reference-card" data-search="aisi 304 нержавеющая сталь режимы материал"><span>Материал</span><h3>AISI 304</h3><p>Стартовые диапазоны для точения, сверления и расточки.</p><button data-open="material304">Открыть →</button></article>
+          <article class="reference-card" data-search="резьба метрическая m16 m12 шаг отверстие"><span>Резьбы</span><h3>Метрические резьбы</h3><p>Шаг, отверстие под метчик, наружный диаметр.</p><button data-open="threads">Открыть →</button></article>
+          <article class="reference-card" data-search="пластины cnmg wnmg инструмент токарный"><span>Инструмент</span><h3>CNMG / WNMG</h3><p>Геометрия, радиус, базовые применения.</p><button data-open="inserts">Открыть →</button></article>
+          <article class="reference-card" data-search="shopturn siemens 828d циклы g код"><span>828D</span><h3>ShopTurn</h3><p>Короткие подсказки по циклам и логике операций.</p><button data-open="shopturn">Открыть →</button></article>
+        </div>
+      </section>
+    </main>
+
+    <nav class="mobile-nav" aria-label="Мобильная навигация">
+      <button class="active" data-nav="home"><span>⌂</span>Главная</button><button data-nav="job"><span>▤</span>Деталь</button><button data-nav="technology"><span>⌁</span>Технология</button><button data-nav="machine"><span>⚙</span>Станок</button><button data-nav="reference"><span>▦</span>База</button>
+    </nav>
+  </div>
+
+  <dialog class="modal" id="calculatorModal">
+    <div class="modal-head"><div><span class="eyebrow">КАЛЬКУЛЯТОР</span><h2>Режим резания</h2></div><button class="close-btn" data-close>×</button></div>
+    <form id="cuttingForm" class="calculator-form">
+      <label><span>Диаметр D, мм</span><input id="calcD" type="number" value="40" step="0.1" /></label>
+      <label><span>Скорость Vc, м/мин</span><input id="calcVc" type="number" value="120" step="1" /></label>
+      <label><span>Подача f, мм/об</span><input id="calcF" type="number" value="0.08" step="0.01" /></label>
+      <button class="btn primary" type="submit">Рассчитать</button>
+    </form>
+    <div class="calc-result"><div><small>Обороты</small><strong id="calcRpm">955</strong><span>об/мин</span></div><div><small>Подача</small><strong id="calcFeed">76</strong><span>мм/мин</span></div></div>
+    <p class="hint">Формулы: n = 1000·Vc/(π·D), Vf = n·f. Это расчёт, а не автоматический выбор безопасного режима.</p>
+  </dialog>
+
+  <dialog class="modal" id="diagnosticsModal">
+    <div class="modal-head"><div><span class="eyebrow">ДИАГНОСТИКА</span><h2>Что происходит?</h2></div><button class="close-btn" data-close>×</button></div>
+    <div class="diagnostic-chips" id="diagnosticChips"><button data-diag="squeal">Писк / скрип</button><button data-diag="vibration">Вибрация</button><button data-diag="chips">Плохая стружка</button><button data-diag="size">Уходит размер</button></div>
+    <div class="diag-result" id="diagResult"><span>Выбери симптом — покажу последовательность проверок без гадания и «магии».</span></div>
+  </dialog>
+
+  <dialog class="modal" id="operationModal">
+    <div class="modal-head"><div><span class="eyebrow">МАРШРУТ</span><h2>Добавить операцию</h2></div><button class="close-btn" data-close>×</button></div>
+    <form id="operationForm" class="operation-form">
+      <label><span>Операция</span><select id="opType"><option>Торцовка</option><option>Наружное точение</option><option>Расточка</option><option>Сверление</option><option>Канавка</option><option>Отрезка</option><option>Наружная резьба</option><option>Внутренняя резьба</option></select></label>
+      <label><span>Инструмент / позиция</span><input id="opTool" placeholder="T01 · CNMG120404" /></label>
+      <div class="triple"><label><span>S, об/мин</span><input id="opRpm" type="number" placeholder="750" /></label><label><span>F, мм/об</span><input id="opFeed" type="number" step="0.01" placeholder="0.06" /></label><label><span>ap, мм</span><input id="opDepth" type="number" step="0.1" placeholder="1.0" /></label></div>
+      <label><span>Комментарий</span><input id="opNote" placeholder="Черновой проход / контроль Ø…" /></label>
+      <button class="btn primary" type="submit">Добавить в маршрут</button>
+    </form>
+  </dialog>
+
+  <dialog class="modal info-modal" id="infoModal"><div class="modal-head"><div><span class="eyebrow">СПРАВОЧНИК</span><h2 id="infoTitle">Справка</h2></div><button class="close-btn" data-close>×</button></div><div id="infoContent" class="info-content"></div></dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./src/app.js" defer></script>
+</body>
+</html>
