@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#071019">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <title>Обновление CNC Assistant</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;background:#071019;color:#f4f7fb}
+    *{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 20%,#12304a 0,transparent 45%),#071019}
+    main{width:min(460px,100%);padding:28px;border:1px solid #1f3345;border-radius:24px;background:#0d1824;box-shadow:0 24px 70px #0007;text-align:center}
+    .mark{width:64px;height:64px;margin:0 auto 18px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#2e91ff,#66b9ff);font-size:34px;font-weight:900}
+    h1{font-size:28px;margin:0 0 10px;letter-spacing:-.04em}p{margin:0;color:#8fa4b8;line-height:1.55}.status{margin-top:22px;padding:14px;border-radius:14px;background:#09131d;border:1px solid #172839;color:#75b9ff;font-weight:700}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="mark">C</div>
+    <h1>Обновляю CNC Assistant</h1>
+    <p>Удаляю только старый кеш проекта 828-test и перезапускаю его Service Worker.</p>
+    <div class="status" id="status">Очистка старого кеша…</div>
+  </main>
+  <script>
+    (async()=>{
+      const status=document.getElementById('status');
+      try{
+        if('caches' in window){
+          const keys=await caches.keys();
+          await Promise.all(keys.filter(k=>k.startsWith('cnc-828-')).map(k=>caches.delete(k)));
+        }
+        if('serviceWorker' in navigator){
+          const regs=await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.filter(r=>r.scope.includes('/828-test/')).map(r=>r.unregister()));
+        }
+        status.textContent='Готово. Загружаю свежую версию…';
+        setTimeout(()=>location.replace('./?fresh='+Date.now()),350);
+      }catch(error){
+        status.textContent='Автоочистка не удалась. Обнови эту страницу ещё раз.';
+        console.error(error);
+      }
+    })();
+  </script>
+</body>
+</html>
