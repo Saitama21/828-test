@@ -1,0 +1,32 @@
+name: Quality checks
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check src/app.js
+          node --check sw.js
+      - name: Required PWA files
+        run: |
+          test -f index.html
+          test -f manifest.webmanifest
+          test -f src/styles.css
+          test -f src/v02.css
+          test -f icons/icon.svg
+      - name: Verify local asset references
+        run: |
+          grep -q './src/app.js' index.html
+          grep -q './manifest.webmanifest' index.html
+          grep -q './src/v02.css' sw.js
