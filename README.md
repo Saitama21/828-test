@@ -13,11 +13,20 @@ Offline-first PWA for practical CNC work around Siemens SINUMERIK 828D / ShopTur
 - Tengyue CK52PT-Y machine profile
 - Dark/light UI, phone/tablet/desktop responsive layout
 - PWA manifest and offline service worker
-- GitHub Pages deployment workflow
 
 ## Data and privacy
 
 No GPT, no cloud backend and no analytics are required. Job data and operations are kept in `localStorage` on the current device.
+
+## GitHub Pages
+
+The project is static and ready to run directly from GitHub Pages. For a new repository, Pages must be enabled once in repository settings:
+
+1. Open **Settings → Pages**.
+2. Under **Build and deployment**, choose **Deploy from a branch**.
+3. Select **main** and **/(root)**, then Save.
+
+After that GitHub publishes the site from the repository root. All application paths are relative, so the PWA works correctly under the `/828-test/` project path.
 
 ## Run locally
 
