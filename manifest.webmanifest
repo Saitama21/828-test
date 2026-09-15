@@ -1,0 +1,15 @@
+{
+  "name": "CNC Assistant · 828D",
+  "short_name": "CNC 828D",
+  "description": "Offline-first CNC toolkit for Siemens 828D workflows.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#071019",
+  "theme_color": "#071019",
+  "orientation": "any",
+  "icons": [
+    {"src":"./icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
