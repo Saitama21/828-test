@@ -100,7 +100,7 @@
   .workspace::-webkit-scrollbar{display:none}
 
   .mobile-nav{
-    position:absolute;
+    position:fixed;
     left:50%;
     right:auto;
     bottom:var(--app-dock-bottom);
@@ -123,7 +123,20 @@
     backdrop-filter:blur(28px) saturate(145%);
     -webkit-backdrop-filter:blur(28px) saturate(145%);
     transform:translate3d(-50%,0,0);
+    opacity:1;
+    transition:
+      transform .28s cubic-bezier(.2,.75,.25,1),
+      opacity .2s ease;
+    will-change:transform,opacity;
     contain:layout paint;
+  }
+
+  /* Hochu behavior: scroll down -> hide, scroll up -> show.
+     Keep X centering while translating the dock below the viewport. */
+  .mobile-nav.is-hidden{
+    transform:translate3d(-50%,145%,0);
+    opacity:.2;
+    pointer-events:none;
   }
 
   .mobile-nav::before{
@@ -191,6 +204,7 @@
 }
 
 @media(prefers-reduced-motion:reduce){
+  .mobile-nav{transition:none!important}
   .mobile-nav button{transition:none}
 }
 
