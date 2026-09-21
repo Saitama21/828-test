@@ -20,6 +20,53 @@ function injectUI(){
   const opTool=$('#opTool');if(opTool){opTool.setAttribute('list','turretTools');if(!$('#turretTools'))opTool.insertAdjacentHTML('afterend','<datalist id="turretTools"></datalist>')}
   if(!$('#toolModal'))document.body.insertAdjacentHTML('beforeend',`<dialog class="modal wide-modal" id="toolModal"><div class="modal-head"><div><span class="eyebrow">РЕВОЛЬВЕР</span><h2 id="toolModalTitle">Позиция T01</h2></div><button class="close-btn" data-close>×</button></div><form id="toolForm" class="tool-form"><label><span>Тип</span><select id="toolType"><option>Наружный резец</option><option>Расточной резец</option><option>Канавочный / отрезной</option><option>Резьбовой</option><option>Сверло</option><option>Приводной инструмент</option><option>Метчик</option><option>Другое</option></select></label><label><span>Обозначение / державка</span><input id="toolName" placeholder="SCLCR / PCLNR / BMT40-ER25"></label><label><span>Пластина / оснастка</span><input id="toolInsert" placeholder="CNMG120404 / Ø20 drill"></label><label><span>Вылет, мм</span><input id="toolStick" type="number" step="0.1" placeholder="35"></label><label class="wide"><span>Комментарий</span><input id="toolNote" placeholder="Черновой, чистовой, СОЖ…"></label><div class="tool-form-actions"><button class="btn primary" type="submit">Сохранить позицию</button><button class="btn danger-ghost" id="removeToolBtn" type="button">Освободить позицию</button></div></form></dialog>`);
 }
+function initMobileDockBehavior(){
+  const dock=$('.mobile-nav');
+  const scroller=$('.workspace');
+  if(!dock||!scroller)return;
+
+  let lastY=Math.max(0,scroller.scrollTop||0);
+  let ticking=false;
+
+  const show=()=>dock.classList.remove('is-hidden');
+  const hide=()=>dock.classList.add('is-hidden');
+
+  const update=()=>{
+    const y=Math.max(0,scroller.scrollTop||0);
+    const delta=y-lastY;
+
+    if(window.innerWidth>720||y<80) show();
+    else if(delta>9&&y>130) hide();
+    else if(delta<-7) show();
+
+    lastY=y;
+    ticking=false;
+  };
+
+  scroller.addEventListener('scroll',()=>{
+    if(!ticking){
+      ticking=true;
+      requestAnimationFrame(update);
+    }
+  },{passive:true});
+
+  window.addEventListener('resize',()=>{
+    if(window.innerWidth>720)show();
+    lastY=Math.max(0,scroller.scrollTop||0);
+  },{passive:true});
+
+  document.addEventListener('touchstart',e=>{
+    const y=e.touches?.[0]?.clientY;
+    const viewportH=document.documentElement.clientHeight;
+    if(window.innerWidth<=720&&Number.isFinite(y)&&y>viewportH-105)show();
+  },{passive:true});
+
+  dock.addEventListener('pointerdown',show,{passive:true});
+  $$('.mobile-nav button').forEach(button=>button.addEventListener('click',show));
+}
+
+initMobileDockBehavior();
+
 function nav(v){$$('.view').forEach(x=>x.classList.toggle('active',x.dataset.view===v));$$('[data-nav]').forEach(x=>x.classList.toggle('active',x.dataset.nav===v));if(v==='job'){renderJob();renderSetup();renderMeasurements()}if(v==='technology')renderOps();if(v==='machine')renderTurret();scrollTo({top:0,behavior:'smooth'})}
 function renderHome(){const b=$('#jobProgress .progress-track span'),m=$('#jobProgress .progress-meta');if(!S.job){$('#currentJobTitle').textContent='Деталь не выбрана';b.style.width='0%';m.innerHTML='<span>Создай карточку детали</span><b>0%</b>';return}$('#currentJobTitle').textContent=S.job.name||'Без названия';const done=SETUP.filter(([k])=>S.checks[k]).length;const parts=[S.job.name,S.job.material,S.job.stockDiameter,S.job.controlDims,S.ops.length,done===SETUP.length].filter(Boolean).length;const p=Math.min(100,Math.round(parts/6*100));b.style.width=p+'%';m.innerHTML=`<span>${esc(S.job.material)} · Ø${esc(S.job.stockDiameter||'—')} · ${S.ops.length} оп. · setup ${done}/${SETUP.length}</span><b>${p}%</b>`}
 function renderJob(){const j=S.job||{};$('#jobName').value=j.name||'';$('#jobMaterial').value=j.material||'AISI 304';$('#stockDiameter').value=j.stockDiameter||'';$('#stockLength').value=j.stockLength||'';$('#jobQty').value=j.qty||1;$('#jobZero').value=j.zero||'G54 · торец детали';$('#controlDims').value=j.controlDims||'';$('#jobNotes').value=j.notes||'';$('#jobContextName').textContent=j.name||'Новая деталь';const d=$$('#jobContextList dd');if(d.length>=4){d[0].textContent=j.material||'—';d[1].textContent=j.stockDiameter?`Ø${j.stockDiameter} × ${j.stockLength||'—'} мм`:'—';d[2].textContent=j.qty?j.qty+' шт.':'—';d[3].textContent=j.zero||'—'}}
