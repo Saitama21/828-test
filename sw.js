@@ -1,4 +1,4 @@
-const CACHE='cnc-828-v5';
+const CACHE='cnc-828-v6';
 const APP_SHELL=[
   './',
   './index.html',
